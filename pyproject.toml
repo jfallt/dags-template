@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "dags"
+version = "0.1.0"
+description = "Airflow DAGs Template"
+authors = []
+readme = "ReadMe.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = ">=3.11.6,<3.13"
+apache-airflow = "^2.10.5"
+apache-airflow-providers-amazon = "^8.0.0"
+apache-airflow-providers-docker = "^3.6.0"
+apache-airflow-providers-ftp = "^3.3.1"
+apache-airflow-providers-http = "^4.3.0"
+apache-airflow-providers-imap = "^3.1.1"
+apache-airflow-providers-sftp = "^4.2.4"
+apache-airflow-providers-sqlite = "^3.3.2"
+apache-airflow-providers-ssh = "^3.6.0"
+pyaml = "^23.9.7"
+pandas = "^2.2.2"
+apache-airflow-providers-cncf-kubernetes = "^9.0.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.11"
+pytest = "^7.4.2"
+pytest-mock = "^3.14.0"
+pytest-cov = "^4.1.0"
+pre-commit = "^3.3.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = [
+    "UP", # Alert you to better syntax in newer Python versions
+    "RUF", # ruff developer's own rules,
+    "AIR", # airflow rules
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+# ignore `E402` in all `.py` files
+"*.py" = ["E402"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+    "--ignore=airflow-plugins"
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
