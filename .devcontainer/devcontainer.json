@@ -1,0 +1,13 @@
+{
+  "image": "python3.11",
+  "postCreateCommand": "./.devcontainer/setup-dev.sh",
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "vsls-contrib.codetour"
+      ]
+    }
+}
+}
