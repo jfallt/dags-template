@@ -6,11 +6,16 @@ This repo is a template for setting up a modular, testable DAG infrastructure.
 ### .devcontainer/
 Directory for local development
 
-### commmon/
+### common/
 
 This directory is meant for reuseable code that can be used for any DAG.
 
 Includes operators and task groups.
+
+### constants/
+Contains any reusable constants for dags
+- datasets
+- distribution lists / emails
 
 ### config/
 
