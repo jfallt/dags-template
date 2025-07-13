@@ -18,7 +18,7 @@ except ImportError:
     interval as period, # this function was renamed in 3.0.0
 )
 
-from business_date.observance import (
+from calendar.utils import (
     convert_to_naive,
     nearest_workday_nyse,
     nearest_workday,
