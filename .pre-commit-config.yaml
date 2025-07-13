@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.11.12
+    hooks:
+      - id: ruff
+        name: check linting with ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
+        name: check format with ruff
+  - repo: local
+    hooks:
+    - id: pytest-check
+      name: pytest-check
+      entry: pytest
+      language: python
+      pass_filenames: false
+      always_run: true
+    - id: email-to-constant
+      name: email-to-constant
+      entry: .venv/bin/python hooks/run_hook.py --hook email_to_constant
+      language: python
+      pass_filenames: true
+      always_run: true
+      verbose: false
+    - id: find-missing-email-constants
+      name: find-missing-email-constants
+      entry: .venv/bin/python hooks/find_missing_email_constants.py
+      language: python
+      pass_filenames: false
+      always_run: true
+      verbose: true
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-yaml
+        name: check yaml files
