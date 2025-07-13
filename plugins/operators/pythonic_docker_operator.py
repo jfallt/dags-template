@@ -13,6 +13,9 @@ class PythonicDockerOperator(DockerOperator):
     Extension of the DockerOperator, allows pythonic passing of args to a container through the command parameter
     while maintaining python dtypes
 
+    This container repo is a monolithic template to dynamically run python commands for a given module
+    https://github.com/jfallt/dags-docker-template/tree/main
+
     Parameters
     ----------
     module : str
