@@ -49,7 +49,7 @@ class PythonicDockerOperator(DockerOperator):
         self.cmd_to_run = cmd_to_run
         self.cmd_args = cmd_args
         self.kwargs = kwargs
-        self.operator_args = VehiclesOperator.get_class_args(
+        self.operator_args = PythonicDockerOperator.get_class_args(
             BaseOperator
         ) + VehiclesOperator.get_class_args(DockerOperator)
 
