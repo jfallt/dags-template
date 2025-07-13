@@ -44,7 +44,7 @@ env.MY_VAR  # access vars as properties
 
 For any DAG, valid lower environments can be specified by passing a `lower_envs` parameter into env_dag() with a list of environments. It will default to `['dev', 'sit', 'uat']`.
 
-See [the code](common/environment.py) for more details.
+See [the code](plugins/dag_wrapper/environment.py) for more details.
 
 ## Tests
 
