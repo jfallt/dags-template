@@ -26,32 +26,61 @@ def fetch_iam_credentials(iam_role, session_name):
 
 
 @task
-def create_aws_conn(role_arn, http_proxy, https_proxy, conn_id="ops_sqs_queue"):
+def create_aws_conn(
+    role_arn: str,
+    http_proxy: str,
+    https_proxy: str,
+    conn_id: str,
+    chain_role_arns: Optional[list] = [],
+    region_name: Optional[str] = None,
+    description: Optional[str] = "",
+):
     """
-    Creates a dynamic connection for AWS
+    Refreshes an airflow connection for AWS
+
+    Parameters
+    ----------
+    role_arn: assumeable from the airflow instance, typically this will be your team's role
+    conn_id: name of your airflow connection
+    chain_role_arns (Optional): additional arns assumeable from the previous arn, specifically created for subaccounts
+    region_name (Optional): override the region, otherwise this value is grabbed from the iam_creds
 
     Followed the guide below to set up:
         https://github.com/apache/airflow/blob/main/docs/apache-airflow-providers-amazon/connections/aws.rst
     """
-    instance_creds = fetch_iam_credentials(role_arn, conn_id)
+    iam_creds = fetch_iam_credentials(role_arn, conn_id)
+
+    for role in chain_role_arns:
+        iam_creds = fetch_iam_credentials(
+            role,
+            conn_id,
+            aws_access_key_id=iam_creds["AccessKeyId"],
+            aws_secret_access_key=iam_creds["SecretAccessKey"],
+            aws_session_token=iam_creds["SessionToken"],
+        )
+
+    if not region_name:
+        region_name = iam_creds["Region"]
+    else:
+        logging.info(f"Overriding region from {iam_creds['Region']} to {region_name}")
+
     logging.info("Creating AWS connection object...")
+    extra = {
+        "aws_session_token": iam_creds["SessionToken"],
+        "region_name": region_name,
+    }
+    proxies = {k: v for k, v in {"http": http_proxy, "https": https_proxy}.items() if v}
+
+    if proxies:
+        extra["config_kwargs"] = {"proxies": proxies}
     conn = Connection(
         conn_id=conn_id,
         conn_type="aws",
-        description="Temporary connection to read OPS SQS queue",
-        login=instance_creds["AccessKeyId"],
-        extra={
-            "aws_session_token": instance_creds["SessionToken"],
-            "region_name": instance_creds["Region"],
-            "config_kwargs": {
-                "proxies": {
-                    "http": http_proxy,
-                    "https": https_proxy,
-                }
-            },
-        },
+        description=description,
+        login=iam_creds["AccessKeyId"],
+        extra=extra,
     )
-    conn.set_password(instance_creds["SecretAccessKey"])
+    conn.set_password(iam_creds["SecretAccessKey"])
 
     logging.info("Checking if we have an existing connection with the same id...")
     session = settings.Session()
@@ -63,13 +92,12 @@ def create_aws_conn(role_arn, http_proxy, https_proxy, conn_id="ops_sqs_queue"):
         session.delete(conn_id)
         session.commit()
         logging.info("Deleted existing conn_id")
-    else:
-        logging.info(f"No existing connection with `conn_id`={conn_id}")
+
     logging.info(f"Adding new connection with id={conn_id}")
     session.add(conn)
     session.commit()
     logging.info("Complete!")
-    return instance_creds["Expiration"]
+    return str(iam_creds["Expiration"])
 
 
 @task
